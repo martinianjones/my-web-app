@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duratus Sleep Screener</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@500;600&family=Roboto:wght@300;400&family=Oswald:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="brand-block">
+        <img src="Duratus.png" alt="Duratus logo" class="brand-logo" />
+        <div class="brand-copy">
+          <p class="eyebrow">Duratus</p>
+          <h1>Sleep Debt Screener</h1>
+          <p class="subtitle">Sleep assessment with live scoring, executive summary, and PDF export.</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div id="ragBadge" class="rag-badge rag-grey">Not scored</div>
+        <p class="status-note">Questions 1 to 9 form the core score. Questions 10 and 11 can override the result to Red.</p>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="panel assessment-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Assessment</p>
+            <h2>Question cards</h2>
+            <p>Use the last 14 days as your reference period.</p>
+          </div>
+          <div class="progress-meta">
+            <span id="questionCounter">Question 1 of 11</span>
+            <div class="step-track" aria-hidden="true">
+              <div id="stepFill" class="step-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <form id="sleepForm" novalidate>
+          <div id="questionCard" class="question-card" aria-live="polite">
+            <div class="question-card-head">
+              <p id="questionCategory" class="card-category">Sleep opportunity</p>
+              <h3 id="questionText">How much sleep do you usually get in a 24-hour period?</h3>
+              <p id="questionHelp" class="question-help"></p>
+            </div>
+
+            <div id="optionsWrap" class="options-wrap"></div>
+          </div>
+
+          <div class="card-nav">
+            <button type="button" id="prevBtn" class="btn btn-secondary">Previous</button>
+            <div class="card-nav-right">
+              <button type="button" id="resetBtn" class="btn btn-ghost">Reset</button>
+              <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <aside class="panel dashboard-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Live dashboard</p>
+            <h2>Current result</h2>
+            <p>The score and interpretation update as answers are entered.</p>
+          </div>
+        </div>
+
+        <div class="score-card">
+          <div class="score-main">
+            <span class="score-label">Core score</span>
+            <div class="score-row">
+              <strong id="totalScore">0</strong>
+              <span class="score-max">/ 27</span>
+            </div>
+          </div>
+
+          <div class="score-progress">
+            <div class="progress-track">
+              <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div class="zone-scale">
+              <span>Green 0 to 7</span>
+              <span>Amber 8 to 15</span>
+              <span>Red 16 to 27</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subscale-grid">
+          <div class="mini-card">
+            <span>Sleep opportunity</span>
+            <strong id="sleepOpportunity">0 / 12</strong>
+          </div>
+          <div class="mini-card">
+            <span>Recovery and alertness</span>
+            <strong id="recoveryAlertness">0 / 3</strong>
+          </div>
+          <div class="mini-card">
+            <span>Daytime consequences</span>
+            <strong id="daytimeConsequences">0 / 12</strong>
+          </div>
+        </div>
+
+        <section class="interpretation-block">
+          <p class="eyebrow">Interpretation</p>
+          <h3 id="ragTitle">Complete the questionnaire to generate a score.</h3>
+          <p id="ragText">The dashboard updates live. Override flags can move the result to Red regardless of core score.</p>
+        </section>
+
+        <section class="flags-block">
+          <p class="eyebrow">Override flags</p>
+          <div id="flagDrive" class="flag-item neutral">Driving risk flag not triggered</div>
+          <div id="flagSleepDisorder" class="flag-item neutral">Sleep-disordered breathing flag not triggered</div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="panel report-panel">
+      <div class="panel-head report-head">
+        <div>
+          <p class="eyebrow">Executive summary</p>
+          <h2>One-page report</h2>
+          <p>Use this summary for client feedback or export.</p>
+        </div>
+        <div class="report-actions">
+          <button type="button" id="printBtn" class="btn btn-secondary">Print report</button>
+          <button type="button" id="exportPdfBtn" class="btn btn-primary">Export PDF</button>
+        </div>
+      </div>
+
+      <div id="reportSheet" class="report-sheet">
+        <div class="report-top">
+          <div class="report-brand">
+            <img src="Duratus.png" alt="Duratus logo" class="report-logo" />
+            <div>
+              <p class="eyebrow">Duratus</p>
+              <h3>Sleep Debt Screener Report</h3>
+              <p class="report-date" id="reportDate"></p>
+            </div>
+          </div>
+          <div class="report-rag-wrap">
+            <div id="reportRagBadge" class="rag-badge rag-grey">Not scored</div>
+          </div>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-card">
+            <h4>Core score</h4>
+            <p class="report-score"><span id="reportScore">0</span><span>/ 27</span></p>
+            <p id="reportHeadline" class="report-headline">Complete the questionnaire to generate a report.</p>
+          </div>
+
+          <div class="report-card">
+            <h4>Subscale profile</h4>
+            <ul class="report-list">
+              <li><strong>Sleep opportunity</strong> <span id="reportSleepOpportunity">0 / 12</span></li>
+              <li><strong>Recovery and alertness</strong> <span id="reportRecoveryAlertness">0 / 3</span></li>
+              <li><strong>Daytime consequences</strong> <span id="reportDaytimeConsequences">0 / 12</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <h4>Interpretation</h4>
+          <p id="reportInterpretation">The report will populate as answers are entered.</p>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-card">
+            <h4>Override flags</h4>
+            <ul class="report-list">
+              <li id="reportDriveFlag">Driving risk flag not triggered.</li>
+              <li id="reportSleepFlag">Sleep-disordered breathing flag not triggered.</li>
+            </ul>
+          </div>
+
+          <div class="report-card">
+            <h4>Priority actions</h4>
+            <ul id="reportActions" class="report-list"></ul>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <h4>RAG guidance</h4>
+          <ul class="report-list">
+            <li><strong>Green</strong> indicates low current evidence of meaningful sleep debt.</li>
+            <li><strong>Amber</strong> indicates building sleep debt or reduced recovery margin.</li>
+            <li><strong>Red</strong> indicates high likelihood of meaningful sleep debt or a triggered override flag.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
